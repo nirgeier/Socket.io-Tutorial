@@ -1,0 +1,37 @@
+<html lang="en">
+
+<head>
+  <link rel="stylesheet" href="/style/bootstrap.min.css">
+  <link href="/style/chatRoom.css" rel="stylesheet">
+  <title>Socket.IO tutorial</title>
+</head>
+<div class="content container-fluid chat-container">
+  <h3>Chat room</h3>
+  <div class="row">
+    <div class="col-12 chat-room">
+      <div class="col-12 chat-body">
+        <div id="chat-messages"></div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="feedback"></div>
+  </div>
+  <div class="row">
+    <div class="message-bar">
+      <input class="message" placeholder="Your message">
+      <span class="message-btn message-send">
+        <img src="/images/paper-plane.svg">
+      </span>
+    </div>
+  </div>
+</div>
+
+<script src="/js/jquery-3.3.1.min.js"></script>
+<script src="/js/jquery.nicescroll.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/socket.io.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/chatRoom.js"></script>
+
+</html>
