@@ -98,3 +98,53 @@ npm i nodemon express socket.io
   avatar: '/images/avatar4.png' 
 }
 ```
+---
+
+### Step03 Send messages back to the client
+- Add the event listener in the chatroom [`public/js/chatRoom.js`](`public/js/chatRoom.js`)
+```js
+  // When user is typing - submit the event to the server
+  messageInput.addEventListener('keypress', () => {
+    socket.emit('typing', messageInput.value);
+  });
+
+   /**
+   * Listen for incoming message from the server.
+   * Once message is received we adding it to the chat room 
+   */
+  socket.on('message', (message) => {
+    console.log('Got message on the client:', message);
+    UTILS.addMessage(message);
+  });
+
+   /**
+   * Listen for incoming typing message from the server.
+   * this event is triggered when user is typing. The event is
+   * being submitted by the server
+   */
+  socket.on('typing', (message) => {
+    console.log('Got typing message on the client:', message);
+    UTILS.showTyping(message);
+  });
+```
+- Broadcast message are being send to all the sockets **except** origin one.
+- Update [`public/index.html`](public/index.html) and add the required events
+```js
+// Listen for WebSocket connection
+io.on('connection', (socket) => {
+  console.log(`Connection opened. Socket id is: ${socket.id}`);
+
+  // Listen for the message event from the client
+  socket.on('add-message', (message) => {
+    // Broadcast the message to all the open sockets
+    io.sockets.emit('message', message);
+  });
+
+  socket.on('typing', (message) => {
+    // Broadcast the message to all the open sockets
+    socket.broadcast.emit('typing', message);
+  });
+
+});
+```
+

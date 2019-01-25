@@ -22,7 +22,13 @@ io.on('connection', (socket) => {
 
   // Listen for the message event from the client
   socket.on('add-message', (message) => {
-    console.log(message);
+    // Broadcast the message to all the open sockets
+    io.sockets.emit('message', message);
+  });
+
+  socket.on('typing', (message) => {
+    // Broadcast the message to all the open sockets
+    socket.broadcast.emit('typing', message);
   });
 
 });
