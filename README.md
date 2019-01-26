@@ -147,4 +147,63 @@ io.on('connection', (socket) => {
 
 });
 ```
+---
+### Step04 Broadcasting images (Download from the server)
+- In this step we will send image from the server to the client and we will display it on the main page.
+- Add the following code to the [`index.js`](index.js)
+```js
+const fs = require('fs');
+...
+socket.on('get-image', () => {
+  console.log(`Got request to send image`);
+  // Broadcast the message to all the open sockets
+  var readStream = fs.createReadStream(__dirname + '/public/images/socket.io.jpg'),
+    emitDelay = 0;
 
+  // Listen for reading 
+  readStream.on('data', (chunk) => {
+    console.log(`Sending image to the client. #of bytes: ${chunk.length}`);
+    // Split the chunks in to a smaller chunks and send them slowly
+    // to the client so we will be able to see the progress
+    let data = Buffer.from(chunk).toString('base64');
+
+      for (let index = 0; index < data.length; index += 100) {
+      setTimeout(() => {
+        socket.emit('message-image', data.substring(0, index));
+      }, emitDelay);
+      // Set delay so we can it see loading on the client side
+      emitDelay += 10;
+    } // for
+  }); // readStream.on
+});
+```
+- Update the template [`public/index.html`](public/index.html) and add this code after the `</head>`
+```html
+<div class="row text-center">
+  <a href="#" class="upload-image">Download image (simulate reading delay)</a>
+  <img class="stream-image">
+</div>
+<hr />
+```
+- Add the events inside [`public/js/chatRoom.js`](public/js/chatRoom.js)
+```js
+/* ----------------------------------------
+  *           Sending images
+  * ---------------------------------------- */
+
+// When user is click on the upload image - submit the event to the server
+document.querySelector('.upload-image')
+  .addEventListener('click', () => {
+    // Clear all previous data
+    socket.emit('get-image');
+  });
+/**
+ * Listen for incoming image message.
+ */
+socket.on('message-image', (chunk) => {
+  console.log(`Got image message on the client.`);
+  console.log(`base64Img.length: ${chunk.length}`)
+  document.querySelector('.stream-image').src = `data:image/jpeg;base64,${chunk}`;
+});
+```
+- Open your browser and test the code

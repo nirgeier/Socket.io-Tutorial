@@ -1,5 +1,6 @@
 const express = require('express');
 const socket = require('socket.io');
+const fs = require('fs');
 
 var app = express();
 
@@ -31,4 +32,26 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('typing', message);
   });
 
+  socket.on('get-image', () => {
+    console.log(`Got request to send image`);
+    // Broadcast the message to all the open sockets
+    var readStream = fs.createReadStream(__dirname + '/public/images/socket.io.jpg'),
+      emitDelay = 0;
+
+    // Listen for reading 
+    readStream.on('data', (chunk) => {
+      console.log(`Sending image to the client. #of bytes: ${chunk.length}`);
+      // Split the chunks in to a smaller chunks and send them slowly
+      // to the client so we will be able to see the progress
+      let data = Buffer.from(chunk).toString('base64');
+
+      for (let index = 0; index < data.length; index += 100) {
+        setTimeout(() => {
+          socket.emit('message-image', data.substring(0, index));
+        }, emitDelay);
+        // Set delay so we can it see loading on the client side
+        emitDelay += 10;
+      } // for
+    }); // readStream.on
+  });
 });

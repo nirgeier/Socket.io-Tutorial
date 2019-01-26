@@ -43,4 +43,23 @@
     console.log('Got typing message on the client:', message);
     UTILS.showTyping(message);
   });
+
+  /* ----------------------------------------
+   *           Sending images
+   * ---------------------------------------- */
+
+  // When user is click on the upload image - submit the event to the server
+  document.querySelector('.upload-image')
+    .addEventListener('click', () => {
+      // Clear all previous data
+      socket.emit('get-image');
+    });
+  /**
+   * Listen for incoming image message.
+   */
+  socket.on('message-image', (chunk) => {
+    console.log(`Got image message on the client.`);
+    console.log(`base64Img.length: ${chunk.length}`)
+    document.querySelector('.stream-image').src = `data:image/jpeg;base64,${chunk}`;
+  });
 })();
